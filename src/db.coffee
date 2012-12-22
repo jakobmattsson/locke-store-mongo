@@ -26,13 +26,13 @@ exports.factory = (params) ->
 
   getUser = (app, email, callback) ->
     db.apps.findOne { name: app }, propagate callback, (match) ->
-      return callback(noApp(app)) if !match?
+      return callback(noApp(app)) if !match? && app != rootAppName
       db.users.findOne { app: app, email: email }, propagate callback, (user) ->
         callback null, user?.data
 
   deleteToken = (app, email, type, token, callback) ->
     db.apps.findOne { name: app }, propagate callback, (match) ->
-      return callback(noApp(app)) if !match?
+      return callback(noApp(app)) if !match? && app != rootAppName
       db.users.findOne { app: app, email: email }, propagate callback, (user) ->
         return callback(noUser(app, email)) if !user?
 
@@ -42,14 +42,14 @@ exports.factory = (params) ->
 
   comparePassword: (app, user, password, callback) ->
     db.apps.findOne { name: app }, propagate callback, (data) ->
-      return callback(noApp(app)) if !data?
+      return callback(noApp(app)) if !data? && app != rootAppName
       getUser app, user, propagate callback, (data) ->
         return callback(noUser(app, user)) if !data?
         callback null, data.password == password
 
   compareToken: (app, email, type, name, callback) ->
     db.apps.findOne { name: app }, propagate callback, (match) ->
-      return callback(noApp(app)) if !match?
+      return callback(noApp(app)) if !match? && app != rootAppName
       db.users.findOne { app: app, email: email }, propagate callback, (data) ->
         return callback(noUser(app, email)) if !data?
         list = data[type] || []
@@ -60,7 +60,7 @@ exports.factory = (params) ->
 
   addToken: (app, email, type, name, tokenData, callback) ->
     db.apps.findOne { name: app }, propagate callback, (matchApp) ->
-      return callback(noApp(app)) if !matchApp?
+      return callback(noApp(app)) if !matchApp? && app != rootAppName
       db.users.findOne { app: app, email: email }, propagate callback, (user) ->
         return callback(noUser(app, email)) if !user?
 
@@ -73,7 +73,7 @@ exports.factory = (params) ->
 
   removeAllTokens: (app, email, type, callback) ->
     db.apps.findOne { name: app }, propagate callback, (match) ->
-      return callback(noApp(app)) if !match?
+      return callback(noApp(app)) if !match? && app != rootAppName
       db.users.findOne { app: app, email: email }, propagate callback, (user) ->
         return callback(noUser(app, email)) if !user?
 
@@ -88,7 +88,7 @@ exports.factory = (params) ->
       return callback(noEmptyPassword()) if data.password == '' || typeof data.password != 'string'
 
     db.apps.findOne { name: app }, propagate callback, (matchApp) ->
-      return callback(noApp(app)) if !matchApp?
+      return callback(noApp(app)) if !matchApp? && app != rootAppName
       db.users.findOne { app: app, email: email }, propagate callback, (user) ->
         return callback(noUser(app, email)) if !user?
 
@@ -105,7 +105,7 @@ exports.factory = (params) ->
     return callback(noEmptyPassword()) if data.password == '' || typeof data.password != 'string'
 
     db.apps.findOne { name: app }, propagate callback, (matchApp) ->
-      return callback(noApp(app)) if !matchApp?
+      return callback(noApp(app)) if !matchApp? && app != rootAppName # always allow creating a user for the rootApp, even if doesn't exist (it will create it)
       db.users.findOne { app: app, email: email }, propagate callback, (user) ->
         return callback("User '#{email}' already exists for the app '#{app}'") if user?
         async.parallel [
@@ -115,7 +115,7 @@ exports.factory = (params) ->
 
   removeUser: (app, email, callback) ->
     db.apps.findOne { name: app }, propagate callback, (matchApp) ->
-      return callback(noApp(app)) if !matchApp?
+      return callback(noApp(app)) if !matchApp? && app != rootAppName
       db.users.findOne { app: app, email: email }, propagate callback, (user) ->
         return callback(noUser(app, email)) if !user?
         async.parallel [
