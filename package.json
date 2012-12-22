@@ -1,0 +1,28 @@
+{
+  "name": "locke-store-mongo",
+  "description": "A locke storage implementation for MongoDB",
+  "version": "0.1.0",
+  "main": "./lib/db.js",
+  "author": "Jakob Mattsson <jakob.mattsson@gmail.com> (jakobmattsson.se)",
+  "engines": {
+    "node": ">= 0.8"
+  },
+  "dependencies": {
+    "async": "0.1.22",
+    "mongojs": "0.4.6"
+  },
+  "devDependencies": {
+    "locke-store-test": "0.1.0",
+    "mocha-term-cov-reporter": "0.1.0",
+    "jscov": "0.1.0",
+    "should": "1.2.1",
+    "mocha": "1.7.4",
+    "coffee-script": "1.4.0"
+  },
+  "scripts": {
+    "pretest": "coffee -co lib src",
+    "prepublish": "coffee -co lib src",
+    "coverage": "jscov src .cov && SRC_DIR=.cov mocha --compilers coffee:coffee-script --reporter mocha-term-cov-reporter tests/*.coffee",
+    "test": "mocha --compilers coffee:coffee-script tests/*.coffee"
+  }
+}
