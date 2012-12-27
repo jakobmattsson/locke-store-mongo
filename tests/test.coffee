@@ -6,6 +6,11 @@ noErr = (f) -> (err, rest...) ->
   should.not.exist err
   f(rest...)
 
+isError = (err, msg) ->
+  err.should.be.an.instanceof Error
+  err.message.should.eql msg
+  err.toString().should.eql "Error: #{msg}"
+
 storeCount = 0
 newStore = ->
   storeCount++
@@ -21,7 +26,7 @@ it "should have a clean-method", (done) ->
         Object.keys(data).length.should.eql 1
         store.clean noErr ->
           store.getApps 'email@test.com', (err, data) ->
-            err.should.eql "There is no user with the email 'email@test.com' for the app 'locke'"
+            isError(err, "There is no user with the email 'email@test.com' for the app 'locke'")
             done()
 
 core.runTests newStore, (store, done) ->

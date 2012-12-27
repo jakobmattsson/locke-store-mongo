@@ -1,7 +1,7 @@
 {
   "name": "locke-store-mongo",
   "description": "A locke storage implementation for MongoDB",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "main": "./lib/db.js",
   "author": "Jakob Mattsson <jakob.mattsson@gmail.com> (jakobmattsson.se)",
   "engines": {
@@ -12,7 +12,7 @@
     "mongojs": "0.4.6"
   },
   "devDependencies": {
-    "locke-store-test": "0.2.0",
+    "locke-store-test": "0.3.0",
     "mocha-term-cov-reporter": "0.1.0",
     "jscov": "0.1.0",
     "should": "1.2.1",

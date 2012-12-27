@@ -10,10 +10,10 @@ propagate = (callback, f) ->
     return callback(err) if err
     f(rest...)
 
-noUser = (app, email) -> "There is no user with the email '#{email}' for the app '#{app}'"
-noApp = (app) -> "Could not find an app with the name '#{app}'"
-noNullPassword = -> 'Password cannot be null'
-noEmptyPassword = -> 'Password must be a non-empty string'
+noUser = (app, email) -> new Error("There is no user with the email '#{email}' for the app '#{app}'")
+noApp = (app) -> new Error("Could not find an app with the name '#{app}'")
+noNullPassword = -> new Error('Password cannot be null')
+noEmptyPassword = -> new Error('Password must be a non-empty string')
 
 exports.factory = (params) ->
 
@@ -21,7 +21,7 @@ exports.factory = (params) ->
 
   createApp = (app, email, callback) ->
     db.apps.findOne { name: app }, propagate callback, (match) ->
-      return callback("App name '#{app}' is already in use") if match?
+      return callback(new Error("App name '#{app}' is already in use")) if match?
       db.apps.save { name: app, owner: email, users: 0 }, oneArg(callback)
 
   getUser = (app, email, callback) ->
@@ -55,7 +55,7 @@ exports.factory = (params) ->
         list = data[type] || []
         anymatch = list.filter (item) -> item.token == name
         tt = anymatch[0]
-        return callback('Incorrect token') if !tt?
+        return callback(new Error('Incorrect token')) if !tt?
         callback(null, tt.data)
 
   addToken: (app, email, type, name, tokenData, callback) ->
@@ -107,7 +107,7 @@ exports.factory = (params) ->
     db.apps.findOne { name: app }, propagate callback, (matchApp) ->
       return callback(noApp(app)) if !matchApp? && app != rootAppName # always allow creating a user for the rootApp, even if doesn't exist (it will create it)
       db.users.findOne { app: app, email: email }, propagate callback, (user) ->
-        return callback("User '#{email}' already exists for the app '#{app}'") if user?
+        return callback(new Error("User '#{email}' already exists for the app '#{app}'")) if user?
         async.parallel [
           (callback) -> db.apps.update { name: app }, { $inc: { users: 1 } }, callback
           (callback) -> db.users.save { app: app, email: email, data: data }, callback
@@ -138,7 +138,7 @@ exports.factory = (params) ->
         callback null, res
 
   deleteApp: (app, callback) ->
-    return callback("It is not possible to delete the app '#{rootAppName}'") if app == rootAppName
+    return callback(new Error("It is not possible to delete the app '#{rootAppName}'")) if app == rootAppName
     db.apps.findOne { name: app }, propagate callback, (matchApp) ->
       return callback(noApp(app)) if !matchApp?
       db.apps.remove { name: app }, oneArg(callback)
